@@ -267,15 +267,15 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 </nav>
 
 <div class="hero">
-  <div class="hero-eyebrow">Jul 13 → Oct 21 · Chennai</div>
+  <div class="hero-eyebrow">Jul 14 → Oct 22 · Chennai</div>
   <h1 class="hero-title">100-Day <em>Fit</em> Challenge</h1>
   <p class="hero-sub">28M · 52 kg · 164 cm · Muscle Gain · Dandruff-Free · Skin Glow</p>
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-num">100</div><div class="kpi-lbl">Days</div></div>
     <div class="kpi"><div class="kpi-num">~58kg</div><div class="kpi-lbl">Target</div></div>
     <div class="kpi"><div class="kpi-num">3L</div><div class="kpi-lbl">Water</div></div>
-    <div class="kpi"><div class="kpi-num">130g</div><div class="kpi-lbl">Protein</div></div>
-    <div class="kpi"><div class="kpi-num">2700</div><div class="kpi-lbl">kcal</div></div>
+    <div class="kpi"><div class="kpi-num">100g</div><div class="kpi-lbl">Protein</div></div>
+    <div class="kpi"><div class="kpi-num">2500</div><div class="kpi-lbl">kcal</div></div>
   </div>
 </div>
 
@@ -342,7 +342,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       <div class="pr-header">
         <div>
           <div class="pr-total" id="prTotal">0g</div>
-          <div class="pr-target">of 130g daily target</div>
+          <div class="pr-target">of 100g daily target</div>
         </div>
         <div class="pr-status-badge" id="prBadge">—</div>
       </div>
@@ -397,14 +397,15 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
     <div class="card-sub">Push / Pull / Legs — 5 days on, 2 active rest</div>
     <div class="db-note">⚡ Max per dumbbell: 10 kg. Start 4–6 kg in Phase 1. Increase weekly. Hold both DBs for leg work.</div>
     <div class="phase-row">
-      <div class="phase-card"><div class="phase-tag">Phase 1</div><div class="phase-name">Foundation</div><div class="phase-range">Jul 13 – Aug 11</div><div class="phase-desc">4–6 kg · 3×10 reps. Learn form, build habit.</div></div>
-      <div class="phase-card"><div class="phase-tag">Phase 2</div><div class="phase-name">Build</div><div class="phase-range">Aug 12 – Sep 10</div><div class="phase-desc">6–8 kg · 4×10–12. Progressive overload.</div></div>
-      <div class="phase-card"><div class="phase-tag">Phase 3</div><div class="phase-name">Peak</div><div class="phase-range">Sep 11 – Oct 21</div><div class="phase-desc">8–10 kg · 4×8–10. Compound focus.</div></div>
+      <div class="phase-card"><div class="phase-tag">Phase 1</div><div class="phase-name">Foundation</div><div class="phase-range">Jul 14 – Aug 12</div><div class="phase-desc">4–6 kg · 3×10 reps. Learn form, build habit.</div></div>
+      <div class="phase-card"><div class="phase-tag">Phase 2</div><div class="phase-name">Build</div><div class="phase-range">Aug 13 – Sep 11</div><div class="phase-desc">6–8 kg · 4×10–12. Progressive overload.</div></div>
+      <div class="phase-card"><div class="phase-tag">Phase 3</div><div class="phase-name">Peak</div><div class="phase-range">Sep 12 – Oct 22</div><div class="phase-desc">8–10 kg · 4×8–10. Compound focus.</div></div>
     </div>
     <div class="tab-row">
       <button class="tab-btn active" onclick="switchTab(this,'push')">💪 Push</button>
       <button class="tab-btn" onclick="switchTab(this,'pull')">🔄 Pull</button>
       <button class="tab-btn" onclick="switchTab(this,'legs')">🦵 Legs</button>
+      <button class="tab-btn" onclick="switchTab(this,'forearms')">🤜 Forearms</button>
       <button class="tab-btn" onclick="switchTab(this,'rest')">🌙 Rest</button>
     </div>
     <div id="tab-push" class="tab-pane active">
@@ -427,9 +428,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
         <div class="ex-row pull"><span class="ex-ico">🔨</span><span class="ex-name">DB Hammer Curls</span><span class="ex-sets">3×12</span></div>
         <div class="ex-row pull"><span class="ex-ico">🦅</span><span class="ex-name">DB Rear Delt Flyes</span><span class="ex-sets">3×15</span></div>
         <div class="ex-row pull"><span class="ex-ico">🏔️</span><span class="ex-name">DB Shrugs</span><span class="ex-sets">3×15</span></div>
+        <div class="ex-row pull"><span class="ex-ico">🤜</span><span class="ex-name">DB Wrist Curls (grip finisher)</span><span class="ex-sets">3×15</span></div>
         <div class="ex-row core"><span class="ex-ico">🧗</span><span class="ex-name">Mountain Climbers</span><span class="ex-sets">3×30 sec</span></div>
       </div>
-      <div class="info-box green">Tue & Fri · Keep elbows close on rows for lat activation.</div>
+      <div class="info-box green">Tue & Fri · Keep elbows close on rows for lat activation. Wrist curls double as forearm + grip work.</div>
     </div>
     <div id="tab-legs" class="tab-pane">
       <div class="ex-list">
@@ -443,6 +445,19 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
       </div>
       <div class="info-box green">Wednesday · Focus on depth in squats for full quad activation.</div>
     </div>
+    <div id="tab-forearms" class="tab-pane">
+      <div class="ex-list">
+        <div class="ex-row warm"><span class="ex-ico">🏃</span><span class="ex-name">Warm-up wrist rotations</span><span class="ex-sets">5 min</span></div>
+        <div class="ex-row pull"><span class="ex-ico">🤜</span><span class="ex-name">DB Wrist Curls (palms up)</span><span class="ex-sets">4×15</span></div>
+        <div class="ex-row pull"><span class="ex-ico">🤛</span><span class="ex-name">DB Reverse Wrist Curls (palms down)</span><span class="ex-sets">4×15</span></div>
+        <div class="ex-row pull"><span class="ex-ico">🔄</span><span class="ex-name">DB Wrist Rotations (Zottman style)</span><span class="ex-sets">3×12 each way</span></div>
+        <div class="ex-row pull"><span class="ex-ico">✊</span><span class="ex-name">Static Farmer's Hold (both DBs)</span><span class="ex-sets">3×30–40 sec</span></div>
+        <div class="ex-row pull"><span class="ex-ico">🔨</span><span class="ex-name">DB Hammer Curls (slow, grip focus)</span><span class="ex-sets">3×12</span></div>
+        <div class="ex-row core"><span class="ex-ico">🖐️</span><span class="ex-name">Finger extensions (rubber band or fingers spread wide)</span><span class="ex-sets">3×15</span></div>
+      </div>
+      <div class="info-box blue">Add this as a 15–20 min finisher after any workout day, or standalone on a rest day if you want extra forearm/grip focus. Great for wrist stability with your dumbbell training.</div>
+    </div>
+
     <div id="tab-rest" class="tab-pane">
       <div class="ex-list">
         <div class="ex-row core"><span class="ex-ico">🧘</span><span class="ex-name">Light stretching / mobility</span><span class="ex-sets">20–30 min</span></div>
@@ -458,10 +473,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
   <div class="sec-label">Nutrition Plan</div>
   <div class="card">
     <div class="card-title">Daily Targets</div>
-    <div class="card-sub">TDEE ~2,200 kcal → target 2,600–2,800 for muscle gain</div>
+    <div class="card-sub">TDEE ~2,200 kcal → target 2,400–2,500 for lean muscle gain</div>
     <div class="macro-row">
-      <div class="macro kcal"><div class="macro-g">2700</div><div class="macro-n">Calories</div></div>
-      <div class="macro prot"><div class="macro-g">130g</div><div class="macro-n">Protein</div></div>
+      <div class="macro kcal"><div class="macro-g">2500</div><div class="macro-n">Calories</div></div>
+      <div class="macro prot"><div class="macro-g">100g</div><div class="macro-n">Protein</div></div>
       <div class="macro carb"><div class="macro-g">300g</div><div class="macro-n">Carbs</div></div>
     </div>
   </div>
@@ -489,15 +504,16 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
   </div>
   <div class="card">
     <div class="card-title">Rest of the Day</div>
-    <div class="card-sub">4 more meals to hit 130g protein & 2700 kcal</div>
+    <div class="card-sub">4 more meals to hit 100g protein & 2500 kcal</div>
     <div class="meal-list">
-      <div class="meal-row"><div class="meal-time">12:30 PM</div><span class="meal-ico">🍛</span><div><div class="meal-name">Lunch</div><div class="meal-desc">2 cups rice + dal/rajma + 1 cup curd + sabji + 1 tsp ghee on rice. ~700 kcal, 25g protein.</div></div></div>
-      <div class="meal-row"><div class="meal-time">3:30 PM</div><span class="meal-ico">🥜</span><div><div class="meal-name">Snack</div><div class="meal-desc">2 whole wheat bread + 2 tbsp peanut butter + 1 glass Aavin milk. ~420 kcal, 20g protein.</div></div></div>
-      <div class="meal-row"><div class="meal-time">6:00 PM</div><span class="meal-ico">🥛</span><div><div class="meal-name">Whey Shake</div><div class="meal-desc">1 scoop whey in 250ml milk. ~300 kcal, 35g protein. Take post-workout if you train evenings.</div></div></div>
-      <div class="meal-row"><div class="meal-time">8:30 PM</div><span class="meal-ico">🍽️</span><div><div class="meal-name">Dinner</div><div class="meal-desc">3 chapati + paneer or egg curry + vegetable side. ~580 kcal, 28g protein.</div></div></div>
+      <div class="meal-row"><div class="meal-time">12:30 PM</div><span class="meal-ico">🍛</span><div><div class="meal-name">Lunch</div><div class="meal-desc">1.5 cups rice + dal/rajma + 1 cup curd + sabji + 1 tsp ghee on rice. ~600 kcal, 18g protein.</div></div></div>
+      <div class="meal-row"><div class="meal-time">3:30 PM</div><span class="meal-ico">🥜</span><div><div class="meal-name">Snack</div><div class="meal-desc">1 slice whole wheat bread + 1 tbsp peanut butter + 1 glass Aavin milk. ~300 kcal, 12g protein.</div></div></div>
+      <div class="meal-row"><div class="meal-time">6:00 PM</div><span class="meal-ico">🥛</span><div><div class="meal-name">Whey Shake</div><div class="meal-desc">1 scoop whey in 200ml milk. ~250 kcal, 28g protein. Take post-workout if you train evenings.</div></div></div>
+      <div class="meal-row"><div class="meal-time">8:30 PM</div><span class="meal-ico">🍽️</span><div><div class="meal-name">Dinner</div><div class="meal-desc">2 chapati + paneer or egg curry + vegetable side. ~480 kcal, 20g protein.</div></div></div>
       <div class="meal-row"><div class="meal-time">10:00 PM</div><span class="meal-ico">🌙</span><div><div class="meal-name">Bedtime Milk</div><div class="meal-desc">1 glass warm Aavin milk + ½ tsp ashwagandha + pinch turmeric. ~150 kcal, overnight recovery.</div></div></div>
     </div>
   </div>
+
 </div>
 
 <!-- ══ HAIR ══ -->
@@ -568,10 +584,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 
 <script>
 // ── Config ──────────────────────────────────────────────────
-const START = new Date('2026-07-13T00:00:00');
-const END   = new Date('2026-10-21T00:00:00');
+const START = new Date('2026-07-14T00:00:00');
+const END   = new Date('2026-10-22T00:00:00');
 const GOALS = ['water','workout','protein','meals','sleep','hair'];
-const PROTEIN_TARGET = 130;
+const PROTEIN_TARGET = 100;
 const STORAGE_KEY = 'fit100_v3';
 
 // ── State ───────────────────────────────────────────────────
@@ -581,7 +597,14 @@ let todayGlasses = 0;
 let todayProtein = 0;
 let calculatedProtein = 0;
 
-const todayKey = new Date().toISOString().slice(0,10);
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+const todayKey = localDateStr(new Date());
 
 function loadDB() {
   try { db = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { db = {}; }
@@ -732,8 +755,8 @@ function refreshTotals() {
   const total = Math.round(currentItems.reduce((s, item) => s + (parseFloat(item.protein_g) || 0), 0));
   calculatedProtein = total;
   const pct    = Math.min(100, (total / PROTEIN_TARGET) * 100);
-  const status = total >= PROTEIN_TARGET ? 'met' : total >= 90 ? 'partial' : 'low';
-  const label  = total >= PROTEIN_TARGET ? '✅ Target Met!' : total >= 90 ? '⚡ Almost There' : '📈 Need More';
+  const status = total >= PROTEIN_TARGET ? 'met' : total >= 75 ? 'partial' : 'low';
+  const label  = total >= PROTEIN_TARGET ? '✅ Target Met!' : total >= 75 ? '⚡ Almost There' : '📈 Need More';
   document.getElementById('prTotal').textContent = total + 'g';
   document.getElementById('prTotal').className   = 'pr-total ' + status;
   document.getElementById('prBadge').textContent = label;
@@ -762,7 +785,7 @@ async function calculateProtein() {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: `You are a precise nutrition calculator. The user is a 28-year-old male in Chennai, India doing a fitness challenge targeting 130g protein/day.
+        system: `You are a precise nutrition calculator. The user is a 28-year-old male in Chennai, India doing a fitness challenge targeting 100g protein/day.
 
 Analyse the food they ate and return ONLY valid JSON — no markdown, no explanation, no extra text. Use Indian food protein values.
 
@@ -772,7 +795,7 @@ JSON format:
   "items": [
     {"food": "<food name>", "quantity": "<estimated quantity>", "protein_g": <number>}
   ],
-  "tip": "<one short sentence: what to add/change to hit 130g if they haven't, or a positive note if they have>"
+  "tip": "<one short sentence: what to add/change to hit 100g if they haven't, or a positive note if they have>"
 }
 
 Common Indian values to use:
@@ -807,8 +830,8 @@ Common Indian values to use:
 
     calculatedProtein = Math.round(parsed.total_protein);
     const pct = Math.min(100, (calculatedProtein / PROTEIN_TARGET) * 100);
-    const status = calculatedProtein >= PROTEIN_TARGET ? 'met' : calculatedProtein >= 90 ? 'partial' : 'low';
-    const statusText = calculatedProtein >= PROTEIN_TARGET ? '✅ Target Met!' : calculatedProtein >= 90 ? '⚡ Almost There' : '📈 Need More';
+    const status = calculatedProtein >= PROTEIN_TARGET ? 'met' : calculatedProtein >= 75 ? 'partial' : 'low';
+    const statusText = calculatedProtein >= PROTEIN_TARGET ? '✅ Target Met!' : calculatedProtein >= 75 ? '⚡ Almost There' : '📈 Need More';
 
     document.getElementById('prTotal').textContent = calculatedProtein + 'g';
     document.getElementById('prTotal').className = 'pr-total ' + status;
@@ -841,10 +864,10 @@ function applyProtein() {
 function renderHeatmap() {
   const grid = document.getElementById('heatmapGrid');
   grid.innerHTML = '';
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr(new Date());
   for (let i = 0; i < 100; i++) {
     const d = new Date(START.getTime() + i * 86400000);
-    const key = d.toISOString().slice(0,10);
+    const key = localDateStr(d);
     const cell = document.createElement('div');
     cell.className = 'hm-cell';
     cell.title = `Day ${i+1} · ${key}`;
@@ -863,16 +886,16 @@ function renderHeatmap() {
 }
 
 function renderStreaks() {
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDateStr(new Date());
   let cur=0, best=0, done=0, tmp=0;
   for (let i=0;i<100;i++) {
-    const key = new Date(START.getTime()+i*86400000).toISOString().slice(0,10);
+    const key = localDateStr(new Date(START.getTime()+i*86400000));
     if (key > today) break;
     const c = db[key] ? (db[key].goals||[]).length : 0;
     if (c >= 4) { done++; tmp++; if(tmp>best) best=tmp; } else tmp=0;
   }
   for (let i=99;i>=0;i--) {
-    const key = new Date(START.getTime()+i*86400000).toISOString().slice(0,10);
+    const key = localDateStr(new Date(START.getTime()+i*86400000));
     if (key > today) continue;
     const c = db[key] ? (db[key].goals||[]).length : 0;
     if (c >= 4) cur++; else break;
@@ -910,7 +933,7 @@ function renderReport() {
       <tr><th>Metric</th><th>Value</th></tr>
       <tr><td>Days logged</td><td><strong>${n}</strong> / 100</td></tr>
       <tr><td>Perfect days (6/6 goals)</td><td><strong>${fullDays}</strong></td></tr>
-      <tr><td>Avg protein (logged days)</td><td><strong>${avgProtein}g</strong> / 130g target</td></tr>
+      <tr><td>Avg protein (logged days)</td><td><strong>${avgProtein}g</strong> / 100g target</td></tr>
     </table>
     <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Goal Completion</div>
     <table class="report-table" style="margin-bottom:18px;">
