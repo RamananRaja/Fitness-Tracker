@@ -52,6 +52,15 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .divider{height:1px;background:var(--border);margin:16px 0;}
 
 /* GOAL TILES */
+.date-picker-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;}
+.date-picker-label{font-size:11px;color:var(--muted);white-space:nowrap;}
+.date-picker-input{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:13px;font-family:'Space Grotesk',sans-serif;outline:none;color-scheme:dark;}
+.date-picker-input:focus{border-color:var(--accent);}
+.today-btn{padding:7px 12px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);border-radius:8px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;white-space:nowrap;transition:all .2s;}
+.today-btn:hover{background:rgba(245,166,35,0.22);}
+.today-btn.current{opacity:.4;pointer-events:none;}
+.editing-past-banner{font-size:11px;color:var(--accent);background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:8px;padding:8px 11px;margin-bottom:14px;}
+
 .goal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px;}
 .goal-tile{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:13px 9px;text-align:center;cursor:pointer;transition:all .2s;user-select:none;}
 .goal-tile:hover{border-color:var(--accent);}
@@ -289,7 +298,12 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 <div id="page-today" class="page active">
   <div class="sec-label">Daily Tracker</div>
   <div class="card">
-    <div class="card-title">Today's Goals</div>
+    <div class="date-picker-row">
+      <label class="date-picker-label" for="datePicker">📅 Editing entry for:</label>
+      <input type="date" id="datePicker" class="date-picker-input" onchange="onDateChange()" />
+      <button class="today-btn" id="todayBtn" onclick="jumpToToday()">Today</button>
+    </div>
+    <div class="card-title" id="goalsTitle">Today's Goals</div>
     <div class="card-sub" id="todayLabel">—</div>
 
     <div class="goal-grid">
@@ -318,7 +332,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
     <div class="glasses-row" id="glassesRow"></div>
     <div class="water-status">Filled: <span id="wCount">0</span>/12 &nbsp;·&nbsp; <span id="wLitres">0.00</span>L of 3L</div>
 
-    <button class="save-btn" onclick="saveDay()">💾 Save Today's Progress</button>
+    <button class="save-btn" id="saveBtnLabel" onclick="saveDay()">💾 Save Progress</button>
   </div>
 
   <!-- AI PROTEIN BOX -->
@@ -592,9 +606,9 @@ const STORAGE_KEY = 'fit100_v3';
 
 // ── State ───────────────────────────────────────────────────
 let db = {};
-let todayGoals = new Set();
-let todayGlasses = 0;
-let todayProtein = 0;
+let todayGoals = new Set();   // goals for the currently SELECTED date (name kept for compatibility)
+let todayGlasses = 0;         // glasses for the currently SELECTED date
+let todayProtein = 0;         // protein for the currently SELECTED date
 let calculatedProtein = 0;
 
 function localDateStr(d) {
@@ -604,14 +618,33 @@ function localDateStr(d) {
   return `${y}-${m}-${day}`;
 }
 
-const todayKey = localDateStr(new Date());
+const todayKey = localDateStr(new Date()); // actual real-world today, used for heatmap/streak "today" marker
+let selectedDateKey = todayKey;             // the date currently being viewed/edited on the Today page
 
 function loadDB() {
   try { db = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { db = {}; }
-  if (db[todayKey]) {
-    todayGoals   = new Set(db[todayKey].goals || []);
-    todayGlasses = db[todayKey].glasses || 0;
-    todayProtein = db[todayKey].protein || 0;
+  
+  // Migrate old format (single object) to new format (array) if needed
+  Object.keys(db).forEach(key => {
+    if (db[key] && !Array.isArray(db[key])) {
+      db[key] = [db[key]]; // convert single save to array
+    }
+  });
+  
+  loadSelectedDate();
+}
+
+// Load the merged state for whichever date is currently selected
+function loadSelectedDate() {
+  todayGoals = new Set();
+  todayGlasses = 0;
+  todayProtein = 0;
+  if (db[selectedDateKey] && Array.isArray(db[selectedDateKey])) {
+    db[selectedDateKey].forEach(save => {
+      if (save.goals) save.goals.forEach(g => todayGoals.add(g));
+      if (save.glasses) todayGlasses = Math.max(todayGlasses, save.glasses);
+      if (save.protein) todayProtein = Math.max(todayProtein, save.protein);
+    });
   }
 }
 
@@ -633,11 +666,64 @@ function renderProgress() {
   else el.textContent = `Day ${dayNum} of 100 · ${daysLeft} left`;
 }
 
-// ── Today ───────────────────────────────────────────────────
+// ── Today / Date Picker ──────────────────────────────────────
 function renderTodayLabel() {
-  const now = new Date();
-  document.getElementById('todayLabel').textContent =
-    now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const picker = document.getElementById('datePicker');
+  picker.value = selectedDateKey;
+  // Constrain picker to the challenge window
+  picker.min = localDateStr(START);
+  picker.max = localDateStr(END);
+  updateDateUI();
+}
+
+function updateDateUI() {
+  const d = new Date(selectedDateKey + 'T00:00:00');
+  const label = d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('todayLabel').textContent = label;
+
+  const isToday = selectedDateKey === todayKey;
+  document.getElementById('goalsTitle').textContent = isToday ? "Today's Goals" : "Editing: " + label;
+  document.getElementById('saveBtnLabel').textContent = isToday ? '💾 Save Progress' : '💾 Save Entry for ' + d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  document.getElementById('todayBtn').classList.toggle('current', isToday);
+
+  // Show/hide "editing a past/future day" banner
+  let banner = document.getElementById('editingBanner');
+  if (!isToday) {
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'editingBanner';
+      banner.className = 'editing-past-banner';
+      document.getElementById('goalsTitle').insertAdjacentElement('afterend', banner);
+    }
+    const rel = d < new Date(todayKey+'T00:00:00') ? 'a past' : 'a future';
+    banner.textContent = `📝 You're editing ${rel} day. Entries save under ${selectedDateKey}, not today.`;
+    banner.style.display = 'block';
+  } else if (banner) {
+    banner.style.display = 'none';
+  }
+}
+
+function onDateChange() {
+  const picker = document.getElementById('datePicker');
+  if (!picker.value) return;
+  selectedDateKey = picker.value;
+  loadSelectedDate();
+  renderGoalTiles();
+  refreshGlasses();
+  updateDateUI();
+  // Reset the protein calculator box for the newly selected date
+  document.getElementById('proteinResult').classList.remove('show');
+  document.getElementById('foodInput').value = '';
+}
+
+function jumpToToday() {
+  selectedDateKey = todayKey;
+  loadSelectedDate();
+  renderGoalTiles();
+  refreshGlasses();
+  renderTodayLabel();
+  document.getElementById('proteinResult').classList.remove('show');
+  document.getElementById('foodInput').value = '';
 }
 
 function renderGoalTiles() {
@@ -701,13 +787,24 @@ function refreshGlasses() {
 
 // ── Save day ────────────────────────────────────────────────
 function saveDay() {
-  db[todayKey] = {
+  // Initialize array if it doesn't exist
+  if (!db[selectedDateKey]) db[selectedDateKey] = [];
+  if (!Array.isArray(db[selectedDateKey])) db[selectedDateKey] = []; // fallback migration
+  
+  // Append this save as a new entry
+  db[selectedDateKey].push({
     goals:   [...todayGoals],
     glasses: todayGlasses,
-    protein: todayProtein
-  };
+    protein: todayProtein,
+    timestamp: new Date().toISOString()
+  });
+  
   saveDB();
-  showToast('✅ Day saved!');
+  const isToday = selectedDateKey === todayKey;
+  const dateLabel = new Date(selectedDateKey+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  showToast(isToday
+    ? '✅ Save logged! (Total: ' + db[selectedDateKey].length + ' for today)'
+    : '✅ Saved for ' + dateLabel + ' (Total: ' + db[selectedDateKey].length + ' entries)');
   renderHeatmap();
   renderStreaks();
 }
@@ -860,6 +957,19 @@ function applyProtein() {
   showToast(`💪 ${todayProtein}g protein logged!`);
 }
 
+// ── Helper to get merged goal count from all saves for a day ──
+function getDayGoalCount(key) {
+  if (!db[key]) return 0;
+  if (!Array.isArray(db[key])) return (db[key].goals || []).length; // fallback for old format
+  
+  // Merge all goals from all saves for this day
+  const allGoals = new Set();
+  db[key].forEach(save => {
+    if (save.goals) save.goals.forEach(g => allGoals.add(g));
+  });
+  return allGoals.size;
+}
+
 // ── Heatmap ─────────────────────────────────────────────────
 function renderHeatmap() {
   const grid = document.getElementById('heatmapGrid');
@@ -870,17 +980,29 @@ function renderHeatmap() {
     const key = localDateStr(d);
     const cell = document.createElement('div');
     cell.className = 'hm-cell';
-    cell.title = `Day ${i+1} · ${key}`;
+    cell.title = `Day ${i+1} · ${key} — tap to edit`;
+    cell.style.cursor = 'pointer';
     if (key === today) cell.classList.add('today');
     if (key > today) {
       cell.classList.add('future');
     } else if (db[key]) {
-      const c = (db[key].goals || []).length;
+      const c = getDayGoalCount(key);
       if (c >= 6) cell.classList.add('done-full');
       else if (c >= 4) cell.classList.add('done-partial');
       else cell.classList.add('done-low');
     }
     cell.textContent = i + 1;
+    cell.addEventListener('click', () => {
+      selectedDateKey = key;
+      loadSelectedDate();
+      showPage('today', document.querySelector('.nav-btn'));  // "Today" is always the first nav-btn
+      renderGoalTiles();
+      refreshGlasses();
+      renderTodayLabel();
+      document.getElementById('proteinResult').classList.remove('show');
+      document.getElementById('foodInput').value = '';
+      showToast('📅 Editing ' + key);
+    });
     grid.appendChild(cell);
   }
 }
@@ -891,13 +1013,13 @@ function renderStreaks() {
   for (let i=0;i<100;i++) {
     const key = localDateStr(new Date(START.getTime()+i*86400000));
     if (key > today) break;
-    const c = db[key] ? (db[key].goals||[]).length : 0;
+    const c = getDayGoalCount(key);
     if (c >= 4) { done++; tmp++; if(tmp>best) best=tmp; } else tmp=0;
   }
   for (let i=99;i>=0;i--) {
     const key = localDateStr(new Date(START.getTime()+i*86400000));
     if (key > today) continue;
-    const c = db[key] ? (db[key].goals||[]).length : 0;
+    const c = getDayGoalCount(key);
     if (c >= 4) cur++; else break;
   }
   document.getElementById('curStreak').textContent  = cur;
@@ -919,11 +1041,31 @@ function renderReport() {
   const counts = {};
   GOALS.forEach(g => counts[g]=0);
   let fullDays=0, totalProtein=0, proteinDays=0;
+  
   keys.forEach(k => {
-    const g = db[k].goals||[];
-    if(g.length>=6) fullDays++;
-    g.forEach(x => { if(counts[x]!==undefined) counts[x]++; });
-    if(db[k].protein) { totalProtein+=db[k].protein; proteinDays++; }
+    // Get merged goal count
+    const c = getDayGoalCount(k);
+    if(c>=6) fullDays++;
+    
+    // Merge all goals from array
+    const allGoals = new Set();
+    if (Array.isArray(db[k])) {
+      db[k].forEach(save => {
+        if(save.goals) save.goals.forEach(g => allGoals.add(g));
+      });
+    } else if (db[k].goals) {
+      (db[k].goals || []).forEach(g => allGoals.add(g));
+    }
+    allGoals.forEach(g => { if(counts[g]!==undefined) counts[g]++; });
+    
+    // Get max protein value for day
+    let dayMaxProtein = 0;
+    if (Array.isArray(db[k])) {
+      db[k].forEach(save => { if(save.protein) dayMaxProtein = Math.max(dayMaxProtein, save.protein); });
+    } else {
+      dayMaxProtein = db[k].protein || 0;
+    }
+    if(dayMaxProtein > 0) { totalProtein+=dayMaxProtein; proteinDays++; }
   });
   const n = keys.length;
   const avgProtein = proteinDays ? Math.round(totalProtein/proteinDays) : 0;
@@ -944,10 +1086,18 @@ function renderReport() {
     <table class="report-table">
       <tr><th>Date</th><th>Goals</th><th>Protein</th><th>Water</th></tr>
       ${keys.slice(-10).reverse().map(k=>{
-        const g=(db[k].goals||[]).length;
-        const p=db[k].protein||0;
-        const w=((db[k].glasses||0)*0.25).toFixed(1);
-        return `<tr><td>${k}</td><td>${g}/6</td><td>${p?p+'g':'—'}</td><td>${w}L</td></tr>`;
+        const c = getDayGoalCount(k);
+        let p=0, w=0;
+        if (Array.isArray(db[k])) {
+          db[k].forEach(save => { 
+            if(save.protein) p = Math.max(p, save.protein);
+            if(save.glasses) w = Math.max(w, save.glasses);
+          });
+        } else {
+          p = db[k].protein||0;
+          w = db[k].glasses||0;
+        }
+        return `<tr><td>${k}</td><td>${c}/6</td><td>${p?p+'g':'—'}</td><td>${(w*0.25).toFixed(1)}L</td></tr>`;
       }).join('')}
     </table>`;
 }
@@ -958,9 +1108,24 @@ function buildReportText() {
   const counts={};GOALS.forEach(g=>counts[g]=0);
   let fullDays=0,totalProtein=0,proteinDays=0;
   keys.forEach(k=>{
-    const g=db[k].goals||[];if(g.length>=6)fullDays++;
-    g.forEach(x=>{if(counts[x]!==undefined)counts[x]++;});
-    if(db[k].protein){totalProtein+=db[k].protein;proteinDays++;}
+    const c = getDayGoalCount(k);
+    if(c>=6)fullDays++;
+    const allGoals = new Set();
+    if (Array.isArray(db[k])) {
+      db[k].forEach(save => {
+        if(save.goals) save.goals.forEach(g => allGoals.add(g));
+      });
+    } else if (db[k].goals) {
+      (db[k].goals || []).forEach(g => allGoals.add(g));
+    }
+    allGoals.forEach(x=>{if(counts[x]!==undefined)counts[x]++;});
+    let dayMaxProtein = 0;
+    if (Array.isArray(db[k])) {
+      db[k].forEach(save => { if(save.protein) dayMaxProtein = Math.max(dayMaxProtein, save.protein); });
+    } else {
+      dayMaxProtein = db[k].protein || 0;
+    }
+    if(dayMaxProtein>0){totalProtein+=dayMaxProtein;proteinDays++;}
   });
   const n=Math.max(1,keys.length);
   let t=`100-DAY FIT CHALLENGE — PROGRESS REPORT\n`;
@@ -970,8 +1135,22 @@ function buildReportText() {
   t+=`Days logged: ${keys.length} / 100\nPerfect days: ${fullDays}\nAvg protein: ${proteinDays?Math.round(totalProtein/proteinDays):0}g\n\n`;
   t+=`GOALS\n${'─'.repeat(28)}\n`;
   GOALS.forEach(g=>{ t+=`${goalNames[g]}: ${counts[g]} days (${Math.round(counts[g]/n*100)}%)\n`; });
-  t+=`\nFULL LOG\n${'─'.repeat(28)}\n`;
-  keys.forEach(k=>{ t+=`${k} | Goals: ${(db[k].goals||[]).join(',')} | Protein: ${db[k].protein||0}g | Water: ${((db[k].glasses||0)*.25).toFixed(1)}L\n`; });
+  t+=`\nFULL LOG (Merged per day)\n${'─'.repeat(28)}\n`;
+  keys.forEach(k=>{
+    let allGoals = new Set(), maxP = 0, maxW = 0;
+    if (Array.isArray(db[k])) {
+      db[k].forEach(save => {
+        if(save.goals) save.goals.forEach(g => allGoals.add(g));
+        if(save.protein) maxP = Math.max(maxP, save.protein);
+        if(save.glasses) maxW = Math.max(maxW, save.glasses);
+      });
+    } else {
+      if(db[k].goals) db[k].goals.forEach(g => allGoals.add(g));
+      maxP = db[k].protein||0;
+      maxW = db[k].glasses||0;
+    }
+    t+=`${k} | Goals: ${[...allGoals].join(',')} | Protein: ${maxP}g | Water: ${(maxW*.25).toFixed(1)}L\n`;
+  });
   return t;
 }
 
