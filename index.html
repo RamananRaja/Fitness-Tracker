@@ -120,7 +120,8 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .save-btn:active{transform:scale(0.98);}
 
 /* TOAST */
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#0d1a12;padding:9px 20px;border-radius:30px;font-size:12px;font-weight:700;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,0.3);}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--green);color:#0d1a12;padding:10px 22px;border-radius:30px;font-size:12px;font-weight:700;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:150;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.25);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 /* ── AI NUTRITION BOX ── */
@@ -128,6 +129,24 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .nutrition-box-title{font-size:14px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px;}
 .ai-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(167,139,250,0.15);color:var(--purple);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
 .nutrition-box-sub{font-size:11px;color:var(--muted);margin-bottom:12px;}
+
+.mode-toggle{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:3px;margin-bottom:14px;}
+.mode-btn{flex:1;padding:8px 6px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:none;border:none;color:var(--muted);transition:all .2s;font-family:'Space Grotesk',sans-serif;}
+.mode-btn.active{background:var(--flame);color:#1a0e05;}
+.mode-pane{display:none;}
+.mode-pane.active{display:block;}
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.manual-field{display:flex;flex-direction:column;gap:5px;}
+.manual-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:5px;}
+.manual-field label .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.manual-input{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:15px;font-weight:600;font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+.manual-input:focus{border-color:var(--accent);}
+.manual-note{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
+.manual-note input{width:100%;background:none;border:none;color:var(--text);font-size:12px;font-family:'Space Grotesk',sans-serif;outline:none;}
+.manual-note input::placeholder{color:var(--muted);}
+.manual-save-btn{width:100%;padding:12px;background:rgba(62,207,142,0.14);border:1px solid rgba(62,207,142,0.35);border-radius:12px;color:var(--green);font-size:13px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s;}
+.manual-save-btn:hover{background:rgba(62,207,142,0.22);}
+.manual-add-note{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
 .food-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:13px;font-family:'Space Grotesk',sans-serif;outline:none;transition:border-color .2s;resize:none;min-height:70px;}
 .food-input:focus{border-color:var(--purple);}
 .food-input::placeholder{color:var(--muted);}
@@ -374,55 +393,99 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 
   <!-- AI NUTRITION BOX -->
   <div class="nutrition-box">
-    <div class="nutrition-box-title">🍱 Nutrition Calculator &nbsp;<span class="ai-badge">AI</span></div>
-    <div class="nutrition-box-sub">
-      Type everything you ate — AI calculates calories, protein, fat & fiber &nbsp;
-      <button onclick="resetApiKey()" style="background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Space Grotesk',sans-serif;">reset key</button>
+    <div class="nutrition-box-title">🍱 Nutrition Calculator</div>
+    <div class="nutrition-box-sub">Log calories, protein, fat & fiber — your way</div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeBtnAI" onclick="switchMode('ai')">✨ AI Text</button>
+      <button class="mode-btn" id="modeBtnManual" onclick="switchMode('manual')">✍️ Manual Entry</button>
     </div>
-    <textarea class="food-input" id="foodInput" placeholder="e.g. Morning: smoothie with red banana, almonds, cashews, walnuts, pistachios, raisins, dates, 240ml cream milk + 2 boiled eggs. Lunch: rice, dal, curd. Snack: 2 bread peanut butter + milk. Dinner: 3 chapati paneer curry"></textarea>
-    <button class="calc-btn" id="calcBtn" onclick="calculateNutrition()">Calculate Nutrition ✨</button>
-    <div class="ai-thinking" id="aiThinking"><div class="spinner"></div> AI is calculating…</div>
 
-    <div class="nutrition-result" id="nutritionResult">
-      <!-- 4-macro summary -->
-      <div class="macro-summary">
-        <div class="ms-item kcal">
-          <div class="ms-val" id="rKcal">—</div>
-          <div class="ms-lbl">kcal</div>
-          <div class="ms-bar"><div class="ms-bar-fill" id="rKcalBar" style="width:0%"></div></div>
+    <!-- MANUAL ENTRY MODE -->
+    <div class="mode-pane" id="mode-manual">
+      <div class="manual-grid">
+        <div class="manual-field">
+          <label><span class="dot" style="background:var(--accent)"></span>Calories (kcal)</label>
+          <input type="number" min="0" class="manual-input" id="manKcal" placeholder="e.g. 2500" />
         </div>
-        <div class="ms-item prot">
-          <div class="ms-val" id="rProt">—</div>
-          <div class="ms-lbl">protein g</div>
-          <div class="ms-bar"><div class="ms-bar-fill" id="rProtBar" style="width:0%"></div></div>
+        <div class="manual-field">
+          <label><span class="dot" style="background:var(--purple)"></span>Protein (g)</label>
+          <input type="number" min="0" class="manual-input" id="manProt" placeholder="e.g. 100" />
         </div>
-        <div class="ms-item fat">
-          <div class="ms-val" id="rFat">—</div>
-          <div class="ms-lbl">fat g</div>
-          <div class="ms-bar"><div class="ms-bar-fill" id="rFatBar" style="width:0%"></div></div>
+        <div class="manual-field">
+          <label><span class="dot" style="background:var(--orange)"></span>Fat (g)</label>
+          <input type="number" min="0" class="manual-input" id="manFat" placeholder="e.g. 75" />
         </div>
-        <div class="ms-item fiber">
-          <div class="ms-val" id="rFiber">—</div>
-          <div class="ms-lbl">fiber g</div>
-          <div class="ms-bar"><div class="ms-bar-fill" id="rFiberBar" style="width:0%"></div></div>
+        <div class="manual-field">
+          <label><span class="dot" style="background:var(--teal)"></span>Fiber (g)</label>
+          <input type="number" min="0" class="manual-input" id="manFiber" placeholder="e.g. 28" />
         </div>
+      </div>
+      <div class="manual-note">
+        <input type="text" id="manNote" placeholder="Optional note (e.g. what you ate, for your own reference)" />
+      </div>
+      <button class="manual-save-btn" onclick="saveManualNutrition()">✅ Save these numbers to this day</button>
+      <div class="manual-add-note">Values overwrite this day's nutrition entry — save whenever you like, even mid-day.</div>
+    </div>
+
+    <!-- AI TEXT MODE -->
+    <div class="mode-pane active" id="mode-ai">
+      <div class="nutrition-box-sub" style="margin-bottom:8px;">
+        Type everything you ate — AI calculates calories, protein, fat & fiber &nbsp;
+        <button onclick="resetApiKey()" style="background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;text-decoration:underline;font-family:'Space Grotesk',sans-serif;">reset key</button>
+      </div>
+      <textarea class="food-input" id="foodInput" placeholder="e.g. Morning: smoothie with red banana, almonds, cashews, walnuts, pistachios, raisins, dates, 240ml cream milk + 2 boiled eggs. Lunch: rice, dal, curd. Snack: 2 bread peanut butter + milk. Dinner: 3 chapati paneer curry"></textarea>
+      <button class="calc-btn" id="calcBtn" onclick="calculateNutrition()">Calculate Nutrition ✨</button>
+      <div class="ai-thinking" id="aiThinking"><div class="spinner"></div> AI is calculating…</div>
+      <div id="corsNote" style="display:none;font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-top:10px;line-height:1.6;">
+        ⚠️ Your browser is blocking the direct API call (CORS). This happens on some networks/browsers even with the correct headers. Workarounds:<br>
+        1. Try switching from WiFi to mobile data (or vice versa)<br>
+        2. Try a different browser (Chrome vs Safari)<br>
+        3. Check your API key has credits at <strong>console.anthropic.com</strong> → Billing<br>
+        Or just switch to <strong>✍️ Manual Entry</strong> above — no API key needed.
       </div>
 
-      <div class="breakdown-title">Meal Breakdown</div>
-      <div class="edit-hint">✏️ Edit any value · ✕ to remove · Add missed items below</div>
-      <div class="pr-item-header">
-        <div>Food</div><div style="text-align:right">kcal</div><div style="text-align:right">prot</div><div style="text-align:right">fat</div><div></div>
+      <div class="nutrition-result" id="nutritionResult">
+        <!-- 4-macro summary -->
+        <div class="macro-summary">
+          <div class="ms-item kcal">
+            <div class="ms-val" id="rKcal">—</div>
+            <div class="ms-lbl">kcal</div>
+            <div class="ms-bar"><div class="ms-bar-fill" id="rKcalBar" style="width:0%"></div></div>
+          </div>
+          <div class="ms-item prot">
+            <div class="ms-val" id="rProt">—</div>
+            <div class="ms-lbl">protein g</div>
+            <div class="ms-bar"><div class="ms-bar-fill" id="rProtBar" style="width:0%"></div></div>
+          </div>
+          <div class="ms-item fat">
+            <div class="ms-val" id="rFat">—</div>
+            <div class="ms-lbl">fat g</div>
+            <div class="ms-bar"><div class="ms-bar-fill" id="rFatBar" style="width:0%"></div></div>
+          </div>
+          <div class="ms-item fiber">
+            <div class="ms-val" id="rFiber">—</div>
+            <div class="ms-lbl">fiber g</div>
+            <div class="ms-bar"><div class="ms-bar-fill" id="rFiberBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="breakdown-title">Meal Breakdown</div>
+        <div class="edit-hint">✏️ Edit any value · ✕ to remove · Add missed items below</div>
+        <div class="pr-item-header">
+          <div>Food</div><div style="text-align:right">kcal</div><div style="text-align:right">prot</div><div style="text-align:right">fat</div><div></div>
+        </div>
+        <div id="prItems"></div>
+        <div class="add-food-row">
+          <input class="add-food-name" id="addFoodName" placeholder="Add missed food…"/>
+          <input class="add-num" id="addKcal" type="number" placeholder="kcal"/>
+          <input class="add-num" id="addProt" type="number" placeholder="prot"/>
+          <input class="add-num" id="addFat" type="number" placeholder="fat"/>
+          <button class="add-food-btn" onclick="addFoodRow()">+</button>
+        </div>
+        <div class="pr-tip" id="prTip"></div>
+        <button class="apply-btn" onclick="applyNutrition()">✅ Save nutrition to this day</button>
       </div>
-      <div id="prItems"></div>
-      <div class="add-food-row">
-        <input class="add-food-name" id="addFoodName" placeholder="Add missed food…"/>
-        <input class="add-num" id="addKcal" type="number" placeholder="kcal"/>
-        <input class="add-num" id="addProt" type="number" placeholder="prot"/>
-        <input class="add-num" id="addFat" type="number" placeholder="fat"/>
-        <button class="add-food-btn" onclick="addFoodRow()">+</button>
-      </div>
-      <div class="pr-tip" id="prTip"></div>
-      <button class="apply-btn" onclick="applyNutrition()">✅ Save nutrition to this day</button>
     </div>
   </div>
 </div>
@@ -828,6 +891,7 @@ function onDateChange() {
   updateDateUI();
   document.getElementById('nutritionResult').classList.remove('show');
   document.getElementById('foodInput').value = '';
+  clearManualFields();
 }
 
 function jumpToToday() {
@@ -838,6 +902,14 @@ function jumpToToday() {
   renderTodayLabel();
   document.getElementById('nutritionResult').classList.remove('show');
   document.getElementById('foodInput').value = '';
+  clearManualFields();
+}
+
+function clearManualFields() {
+  ['manKcal','manProt','manFat','manFiber','manNote'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 }
 
 // ════════════════════════════════════════
@@ -1010,6 +1082,7 @@ async function calculateNutrition() {
   const thinking=document.getElementById('aiThinking');
   const result=document.getElementById('nutritionResult');
   btn.disabled=true; thinking.classList.add('show'); result.classList.remove('show');
+  document.getElementById('corsNote').style.display = 'none';
 
   let apiKey = localStorage.getItem('fit100_apikey')||'';
   if(!apiKey){
@@ -1079,7 +1152,12 @@ Oats 60g: 230kcal,8g prot,4g fat,5g fiber`,
 
     const data = await resp.json();
     const raw  = data.content.map(b=>b.text||'').join('');
-    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    let parsed;
+    try {
+      parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    } catch(parseErr) {
+      throw new Error('AI returned unexpected format — try rephrasing your food list');
+    }
 
     calculatedNutrition = {
       kcal:    Math.round(parsed.total.kcal||0),
@@ -1105,8 +1183,11 @@ Oats 60g: 230kcal,8g prot,4g fat,5g fiber`,
     if(err.message?.includes('401')){
       localStorage.removeItem('fit100_apikey');
       showToast('❌ Invalid API key — cleared. Try again.');
+    } else if (err.message?.includes('Failed to fetch') || err.name === 'TypeError') {
+      showToast('❌ Blocked by browser (CORS) — see note below AI box');
+      document.getElementById('corsNote').style.display = 'block';
     } else {
-      showToast('❌ Error — check connection and retry');
+      showToast('❌ ' + (err.message || 'Unknown error').slice(0, 60));
     }
   } finally {
     btn.disabled=false; thinking.classList.remove('show');
@@ -1117,6 +1198,46 @@ function applyNutrition() {
   selNutrition = {...calculatedNutrition};
   updateNutritionTiles();
   showToast(`🍱 ${selNutrition.kcal} kcal · ${selNutrition.protein}g protein saved to this day`);
+}
+
+// ════════════════════════════════════════
+// MANUAL NUTRITION ENTRY
+// ════════════════════════════════════════
+function switchMode(mode) {
+  document.getElementById('mode-ai').classList.toggle('active', mode === 'ai');
+  document.getElementById('mode-manual').classList.toggle('active', mode === 'manual');
+  document.getElementById('modeBtnAI').classList.toggle('active', mode === 'ai');
+  document.getElementById('modeBtnManual').classList.toggle('active', mode === 'manual');
+  // Pre-fill manual fields with whatever is currently saved for this day
+  if (mode === 'manual') {
+    document.getElementById('manKcal').value  = selNutrition.kcal  || '';
+    document.getElementById('manProt').value  = selNutrition.protein || '';
+    document.getElementById('manFat').value   = selNutrition.fat   || '';
+    document.getElementById('manFiber').value = selNutrition.fiber || '';
+  }
+}
+
+function saveManualNutrition() {
+  const kcal  = parseFloat(document.getElementById('manKcal').value)  || 0;
+  const prot  = parseFloat(document.getElementById('manProt').value)  || 0;
+  const fat   = parseFloat(document.getElementById('manFat').value)   || 0;
+  const fiber = parseFloat(document.getElementById('manFiber').value) || 0;
+
+  if (kcal === 0 && prot === 0 && fat === 0 && fiber === 0) {
+    showToast('⚠️ Enter at least one value');
+    return;
+  }
+
+  selNutrition = { kcal, protein: prot, fat, fiber };
+  updateNutritionTiles();
+
+  const note = document.getElementById('manNote').value.trim();
+  if (note) {
+    // Store the note as a "food item" so it shows in the day panel / report
+    currentItems = [{ food: note, quantity: 'manual entry', kcal, protein: prot, fat }];
+  }
+
+  showToast(`✅ ${kcal} kcal · ${prot}g protein saved manually`);
 }
 
 // ════════════════════════════════════════
@@ -1214,6 +1335,7 @@ function editThisDay() {
   renderTodayLabel();
   document.getElementById('nutritionResult').classList.remove('show');
   document.getElementById('foodInput').value='';
+  clearManualFields();
   showToast('📅 Editing '+selectedCalendarDay);
 }
 
@@ -1372,10 +1494,13 @@ function switchTab(btn,id) {
 // ════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════
+let toastTimer = null;
 function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 // ════════════════════════════════════════
